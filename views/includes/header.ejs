@@ -1,0 +1,149 @@
+<style>
+footer {
+	color: white;
+	background-color: black;
+	clear: left;
+	text-align: center;
+	position: fixed;
+	width: 100%;
+	z-index: 1;
+	bottom: 0;
+	padding: 1em;
+}
+
+.topnav {
+	background-color: #333;
+	border: none;
+	top: 0;
+	width: 100%;
+}
+
+.topnav .menu {
+	float: left;
+	display: block;
+	text-align: center;
+	padding: 14px 16px;
+	text-decoration: none;
+	font-size: 17px;
+	color: black !important;
+}
+
+.topnav a.menu:hover, .topnav a.menu:focus {
+	color: #000 !important;
+	background-color: rgb(245, 205, 77) !important;
+}
+
+.topnav .icon {
+	display: none;
+}
+
+.dropdown-menu>li>a:hover {
+	border-left: 6px solid red;
+	background-color: rgb(206, 161, 20);
+	color: black;
+}
+
+.dropdown-menu>li>a {
+	font-family: cursive;
+}
+
+@media screen and (max-width: 600px) {
+	.topnav .menu {
+		display: none;
+	}
+	.topnav a.icon {
+		float: right;
+		display: block;
+	}
+}
+
+@media screen and (max-width: 600px) {
+	.topnav.responsive {
+		position: fixed;
+	}
+	.topnav.responsive .icon {
+		position: absolute;
+		right: 0;
+		top: 0;
+	}
+	.topnav.responsive .menu {
+		float: none;
+		display: block;
+		text-align: left;
+	}
+	/* .topnav.responsive .dropdown-menu a {
+		color: #fff !important;
+	} */
+}
+
+a.navbar-brand:first-child {
+	background-color: #009688 !important;
+}
+
+a.navbar-brand {
+	color: #fff !important;
+}
+
+a.navbar-brand:hover {
+	color: #000 !important;
+	background-color: rgb(245, 205, 77) !important;
+}
+
+.navbar-nav {
+	margin: 0;
+}
+
+#logoutBtn {
+	color: white !important;
+	font-size: 15px;
+	font-weight: bold;
+	margin: 10px;
+	padding: 3px 10px;
+}
+</style>
+<div class='col-xs-12' style="padding: 0;">
+<nav class="navbar  topnav" id="myTopnav"
+	style="background: rgb(207, 204, 253) none repeat scroll 0% 0%; border-bottom: 3px solid orange;">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<a href="#" class="navbar-brand"><i class="fa fa-home"></i> <span>Home</span></a>
+			<a href="javascript:void(0);" style="font-size: 30px;"
+				class="icon navbar-brand" onclick="topnavFunction()">&#9776;</a>
+		</div>
+		<ul class="nav navbar-nav">
+			<li class="dropdown"><a class="dropdown-toggle menu"
+				data-toggle="dropdown" href="#">Configurations <span
+					class="caret"></span></a>
+				<ul class="dropdown-menu" style="background: rgb(207, 204, 253);">
+					<li><a href="/secure/manage-homes">Manage Homes</a></li>
+					<hr style="margin: 0px" />
+					<li><a href="/secure/manage-floors">Manage Floors</a></li>
+					<hr style="margin: 0px" />
+					<li><a href="/secure/manage-rooms">Manage Rooms</a></li>
+					<hr style="margin: 0px" />
+					<li><a href="/secure/manage-boards">Manage Boards</a></li>
+					<hr style="margin: 0px" />
+					<li><a href="/secure/manage-switches">Manage Switches</a></li>
+				</ul></li>
+		</ul>
+		<ul class="nav navbar-nav navbar-right">
+			<li>
+				<strong class='menu'><%= user %></strong>
+			</li>
+			<li>
+				<a id="logoutBtn" class="btn btn-sm btn-danger menu" href="/logout"> Logout <i class="fa fa-sign-out" aria-hidden="true"></i> </a>
+			</li>
+		</ul>
+	</div>
+</nav>
+</div>
+<script>
+	function topnavFunction() {
+		var x = document.getElementById("myTopnav");
+		if (x.className === "topnav") {
+			x.className += " responsive";
+		} else {
+			x.className = "topnav";
+		}
+	}
+</script>

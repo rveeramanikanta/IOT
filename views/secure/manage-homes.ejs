@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Manage Homes</title>
+<link rel="stylesheet" href="/css/bootstrap.css">
+<link rel="stylesheet" href="/css/bootstrap-switch.css">
+<link rel="stylesheet" href="/css/label-style.css">
+<link rel="stylesheet" href="/css/custom-styles.css">
+<link rel="stylesheet" href="/css/alertify/alertify.core.css">
+<link rel="stylesheet" href="/css/alertify/alertify.default.css">
+<link rel="stylesheet" href="/css/tablesorter/theme.bootstrap.css">
+<link rel="stylesheet" href="/css/tablesorter/jquery-ui.css">
+<link rel="stylesheet" href="/css/tablesorter/theme.jui.css">
+
+<script type="text/javascript" src="/js/jquery-latest.js"></script>
+<script type="text/javascript" src="/js/bootstrap.js"></script>
+<script type="text/javascript" src="/js/bootstrap-switch.js"></script>
+<script type="text/javascript" src="/js/alertify.js"></script>
+<script type="text/javascript" src="/js/form2object.js"></script>
+<script type="text/javascript" src="/js/jquery.validate.js"></script>
+<script type="text/javascript" src="/js/jquery-ui-all.js"></script>
+<script type="text/javascript" src="/js/custom/common.js"></script>
+</head>
+<body>
+	<%- include ../includes/header %>
+	<div class="container">
+		<div id="centerContentDiv" class="row">
+			<div id="homeCenterDiv" class="col-md-8 col-sm-offset-2"
+				style="margin-top: 20px">
+				<div id="formAndSearchContainerDiv">
+					<div class="panel panel-primary">
+						<div class="panel-heading">
+							<h4 class="modal-title">Manage Homes</h4>
+						</div>
+						<div class="panel-body">
+							<form class="form-horizontal" role="form" id="addTypeForm" name="addTypeForm">
+								<div class="form-group">
+									<label for="home" class="col-sm-3 control-label">Home Name : </label>
+									<div class="col-sm-4">
+										<input class="form-control input-sm" id="home" name="home" required />
+									</div>
+								</div>
+								<div class="form-group">
+									<label for="description" class="col-sm-3 control-label">Description : </label>
+									<div class="col-sm-8">
+										<input class="form-control input-sm" id="description" name="description" required />
+									</div>
+								</div>
+								<div class="form-group">
+									<label for="description" class="col-sm-3 control-label">Enabled : </label>
+									<div class="col-sm-8">
+										<input class="form-control input-sm bs-switch" type="checkbox"
+											id="isEnabled" name="isEnabled" data-on-label="Yes"
+											data-off-label="No" data-on="success" data-off="warning">
+									</div>
+								</div>
+								<hr />
+								<div class="form-group">
+									<div class="col-sm-offset-4 col-sm-10">
+										<button type="button" class="btn btn-primary" id="addBtn">Add</button>
+										&nbsp;&nbsp;
+										<button type="button" id="resetBtn" class="btn btn-warning">Reset</button>
+									</div>
+									<input type="hidden" name="_id" id="_id" value="">
+								</div>
+							</form>
+						</div>
+						<input type="hidden" name="actionType" id="actionType" value="add">
+						<!-- <input type="hidden" name="sch" id="sch" value="courses"> -->
+						<input type="hidden" name="clickedIDX" id="clickedIDX" value="">
+					</div>
+				</div>
+				<div>
+					<div class="table-responsive">
+						<table class="table table-bordered table-hover" id="tableDetails">
+							<thead>
+								<tr>
+									<th class="td-center" style="width: 10px">#</th>
+									<th style="width: 210px"></th>
+									<th>Name</th>
+									<th>Description</th>
+									<th class="td-center">Status</th>
+								</tr>
+							</thead>
+							<tbody id="tBody">
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+	var jsonDataArr = <%- JSON.stringify(homesResults) %>;
+
+		$( document ).ready(function() {
+			$(".bs-switch").bootstrapSwitch();
+
+			$("#resetBtn").click(function() {
+				$("#addBtn").text("Add");
+				$("#actionType").val("add");
+				$("#_id").val('');
+				$("#clickedIDX").val('');
+				$("#home").val("");
+				$("#description").val("");
+				$("#isEnabled").bootstrapSwitch("setState", false);
+			});
+
+			$("#addBtn").click(function() {
+				addClicked();
+			});
+
+			genTable(jsonDataArr);
+
+		// 	var request = $.ajax({
+		// 		type : "post",
+		// 		url : "/manage-homes",
+		// 		dataType : "json",
+		// 		data : { 'actionType': 'find' }
+		// 	});
+		// 	request.done(function(res) {
+		// 		jsonDataArr = res.results;
+		// 		genTable(jsonDataArr);
+		// 	});
+		// 	request.fail(function(res) {
+		// 		alertify.log("Could not add...[please see the console]",
+		// 				"error", 8000);
+		// 	});
+			});
+
+		function isDuplicateEntry() {
+			var home = $('#home').val().toLowerCase();
+			var duplicateFound = false;
+			$.each(jsonDataArr, function(idx, entry) {
+				var existingHomeName = entry.home.toLowerCase();
+				if (existingHomeName == home) {
+					duplicateFound = true;
+				}
+			});
+			return duplicateFound;
+		}
+
+		function addClicked() {
+			if ($("#addTypeForm").valid()) {
+				var actionType = $("#actionType").val();
+				if (actionType == 'add' && isDuplicateEntry()) {
+					alertify.log("This Home Name already exists.", "error", 6000);
+					return;
+				}
+				var formData = form2object('addTypeForm', '.', true,  function(node) {
+					if (node.id && node.type == 'checkbox') {
+						var checkedStatus = $('#' + node.id).is(":checked");
+						return {
+							name : node.id,
+							value : checkedStatus
+						};
+					}
+				});
+				formData['actionType'] = actionType;
+				var request = $.ajax({
+					type : "post",
+					url : "/secure/manage-homes",
+					dataType : "json",
+					data : formData
+				});
+				request.done(function(res) {
+					alertify.log(res.msg, "success", 6000);
+					var idx = $("#clickedIDX").val();
+					if(idx === "") {
+						idx = jsonDataArr.length;
+					}
+					jsonDataArr[idx] = res.results;
+					genTable(jsonDataArr);
+					$("#resetBtn").click();
+				});
+				request.fail(function(res) {
+					if (actionType == 'add') {
+						alertify.log("Could not add...[please see the console]", "error", 8000);
+					} else {
+						alertify.log("Could not update...[please see the console]", "error", 8000);
+					}
+				});
+			} else {
+				alertify.log("Please fill in the required fields and try again.", "error", 0);
+			}
+		}
+
+		function genTable(jsonDataArr) {
+			var tableBodyText = "";
+			var editActionType = "edit";
+			jsonDataArr.sort(function(a, b) {
+				if (a.hasOwnProperty('sOrder')
+						&& b.hasOwnProperty('sOrder')) {
+					var aOrder = parseInt(a['sOrder']);
+					var bOrder = parseInt(b['sOrder']);
+					return aOrder - bOrder;
+				} else {
+					return 1;
+				}
+			});
+			sOrderJsonDataArr = [];
+			for (var i = 0; i < jsonDataArr.length; i++) {
+				jsonDataArr[i]["jsonDataArrIdx"] = i;
+				sOrderJsonDataArr.push(jsonDataArr[i]);
+			}
+			for (var i = 0; i < sOrderJsonDataArr.length; i++) {
+				var isEnabled = getBooleanForProperty(sOrderJsonDataArr[i], "isEnabled", false);
+				tableBodyText = tableBodyText
+						+ "<tr id='row_" + i + "' dbId='" + sOrderJsonDataArr[i]._id + "'>";
+				tableBodyText = tableBodyText + "<td class='td-center'>"
+						+ (i + 1) + "</td>";
+				tableBodyText = tableBodyText
+						+ "<td><a class='btn btn-primary btn-xs' onclick='populatePageEdit("
+						+ sOrderJsonDataArr[i]["jsonDataArrIdx"]
+						+ ",\""
+						+ editActionType
+						+ "\",\""
+						+ sOrderJsonDataArr[i]._id
+						+ "\")'><span class='glyphicon glyphicon-edit glyphicon-white'></span> Edit</a>&nbsp;&nbsp;";
+				tableBodyText = tableBodyText
+						+ "<a class='btn btn-info btn-xs' onclick='populatePageEdit("
+						+ sOrderJsonDataArr[i]["jsonDataArrIdx"]
+						+ ",\"add\",\""
+						+ sOrderJsonDataArr[i]._id
+						+ "\")'><span class='glyphicon glyphicon-share glyphicon-white'></span> Clone</a>&nbsp;&nbsp;";
+				tableBodyText = tableBodyText
+						+ "<a class='btn btn-danger btn-xs' onClick='deleteClicked(\""
+						+ sOrderJsonDataArr[i]._id
+						+ "\", "
+						+ sOrderJsonDataArr[i]["jsonDataArrIdx"]
+						+ ")'><span class='glyphicon glyphicon-trash glyphicon-white'></span> Delete </a></td>";
+				delete sOrderJsonDataArr[i]["jsonDataArrIdx"];
+				var textClass = "";
+				if (!isEnabled) {
+					textClass = "text-muted";
+				}
+				tableBodyText = tableBodyText
+						+ "<td class='" + textClass + "'>"
+						+ sOrderJsonDataArr[i].home + "</td>";
+				tableBodyText = tableBodyText
+						+ "<td class='" + textClass + "'>"
+						+ sOrderJsonDataArr[i].description + "</td>";
+				if (isEnabled) {
+					tableBodyText = tableBodyText
+							+ "<td class='text-success td-center'> Enabled </td>";
+				} else {
+					tableBodyText = tableBodyText
+							+ "<td class='text-danger td-center'> Disabled </td>";
+				}
+				/* tableBodyText = tableBodyText
+						+ "<td class='td-center selectedItems'><label class='checkboxWrapper'><input type='checkbox' class='selectableItems' dbId='" + sOrderJsonDataArr[i]._id.$oid + "'/></label></td>";
+				tableBodyText = tableBodyText
+						+ "<td class='moveImg td-center'></td>";
+				tableBodyText = tableBodyText + "</tr>"; */
+				//console.log(jsonClientData[i]);
+			}
+			$("#tBody").empty();
+			$("#tBody").append(tableBodyText);
+			//$('#tableDetails').dataTable();
+			//initSortable();
+			//initUndoManager();
+		}
+
+		function populatePageEdit(idx, actionType, oid) {
+			$("#home").val(jsonDataArr[idx].home);
+			$("#description").val(jsonDataArr[idx].description);
+			$("#isEnabled").bootstrapSwitch("setState", getBooleanForProperty(jsonDataArr[idx], "isEnabled", false));
+			$("#actionType").val(actionType);
+			if ("add" == actionType) {
+				//this is for clone..
+				$("#_id").val("");
+				$("#clickedIDX").val("");
+				$("#addBtn").text("Add");
+			} else {
+				$("#_id").val(oid);
+				$("#clickedIDX").val(idx);
+				$("#addBtn").text("Update");
+			}
+			$('body').animate({scrollTop: 0}, 2000);
+		}
+
+		function deleteClicked(oid, idx) {
+			var request = $.ajax({
+				type : "post",
+				url : "/secure/manage-homes",
+				dataType : "json",
+				data : { 'actionType': 'delete', '_id': oid }
+			});
+			request.done(function(res) {
+				alertify.log(res.msg, "success", 6000);
+				jsonDataArr.splice(idx, 1);
+				genTable(jsonDataArr);
+			});
+			request.fail(function(res) {
+				alertify.log("Could not delete...[please see the console]",
+						"error", 8000);
+			});
+		}
+	</script>
+</body>
+</html>

@@ -8,6 +8,8 @@ const Promise = require('promise');
 const ejs  = require('ejs');
 const session = require('express-session');
 
+const io = require('socket.io')(http);
+
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views/'));
 
@@ -252,6 +254,22 @@ app.post('/secure/manage-switches', (req, res) => {
 });
 
 
+
+/*-----------------------------socket.io---------------------------------*/
+
+io.on('connection', function(socket) {
+	console.log('user connected');
+	
+	socket.on("swicthEvent", function(switchInfo) {
+		console.log(switchInfo)
+	});
+	
+	socket.on('disconnect', function() {
+		console.log('user disconnected');
+	});
+});
+
+/*-----------------------------socket.io---------------------------------*/
 
 
 

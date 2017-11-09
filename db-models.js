@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/homeAuto');
+mongoose.connect('mongodb://localhost/test');
 var db = mongoose.connection;
 
 var addHomeSchema = mongoose.Schema({

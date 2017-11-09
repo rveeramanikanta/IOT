@@ -4,18 +4,13 @@
   "description": "smart home iot project",
   "main": "app.js",
   "dependencies": {
-    "assert": "^1.4.1",
     "body-parser": "^1.18.2",
-    "chalk": "^2.3.0",
     "ejs": "^2.5.7",
     "express": "^4.16.2",
     "express-session": "^1.15.6",
-    "express-validator": "^4.2.1",
-    "hbs": "^4.0.1",
     "mongodb": "^2.2.33",
     "mongoose": "^4.12.5",
     "promise": "^8.0.1",
-    "save": "^2.3.1",
     "socket.io": "^2.0.4"
   },
   "devDependencies": {},
